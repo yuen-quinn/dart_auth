@@ -92,7 +92,7 @@ class GitHubProvider implements OAuthProvider {
       return OAuthProfile(
         providerId: data["id"].toString(),
         email: email,
-        name: data["name"],
+        name: data["name"] ?? data["login"],
         avatar: data["avatar_url"],
         raw: data,
       );

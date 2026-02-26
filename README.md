@@ -20,7 +20,7 @@ Add this to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  dart_auth: ^0.1.0
+  dart_auth: ^1.0.1
 ```
 
 Then run:
