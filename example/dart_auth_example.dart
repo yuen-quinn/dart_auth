@@ -2,18 +2,20 @@ import 'package:dart_auth/dart_auth.dart';
 
 /// Complete OAuth flow example with proper state handling
 void main() async {
-  // 1. Create AuthX instance with custom expiration (for testing)
-  final authX = AuthX(expiration: Duration(minutes: 30));
-
-  // 2. Register GitHub provider
-  authX.registerProvider(
-    'github',
-    GitHubProvider(
-      clientId: '',
-      clientSecret: '',
-      redirectUri: 'http://localhost:8080/api/v1/auth/github/callback',
-    ),
+  // 1. Configure AuthX singleton with providers and expiration (call once)
+  AuthX.configure(
+    expiration: Duration(minutes: 30),
+    providers: {
+      'github': GitHubProvider(
+        clientId: '',
+        clientSecret: '',
+        redirectUri: 'http://localhost:8080/api/v1/auth/github/callback',
+      ),
+    },
   );
+
+  // 2. Get the singleton instance
+  final authX = AuthX.instance;
 
   // 3. Get authorization URL (redirect user to this URL)
   final authUrl = authX.getAuthorizationUrl('github');

@@ -3,19 +3,69 @@ import 'provider.dart';
 import 'utils.dart';
 
 class AuthX {
+  static AuthX? _instance;
+  static bool _configured = false;
+  
   final Map<String, OAuthProvider> _providers = {};
   final Map<String, DateTime> _states = {};
   final Duration expiration;
 
-  AuthX({this.expiration = const Duration(minutes: 5)});
+  AuthX._internal({this.expiration = const Duration(minutes: 5)});
+
+  // Get singleton instance
+  static AuthX get instance {
+    _instance ??= AuthX._internal();
+    return _instance!;
+  }
+
+  // Configure AuthX with providers and expiration (call once)
+  static void configure({
+    Duration? expiration,
+    Map<String, OAuthProvider>? providers,
+  }) {
+    if (_configured) {
+      throw DartAuthException(
+        message: "AuthX is already configured. Use AuthX.instance to access the singleton.",
+        code: "ALREADY_CONFIGURED",
+      );
+    }
+    
+    _instance = AuthX._internal(expiration: expiration ?? const Duration(minutes: 5));
+    
+    if (providers != null) {
+      for (final entry in providers.entries) {
+        _instance!._providers[entry.key] = entry.value;
+      }
+    }
+    
+    _configured = true;
+  }
+
+  // Reset configuration (for testing purposes)
+  static void reset() {
+    _instance = null;
+    _configured = false;
+  }
+
+  // Ensure AuthX is configured before use
+  void _ensureConfigured() {
+    if (!_configured) {
+      throw DartAuthException(
+        message: "AuthX is not configured. Call AuthX.configure() first.",
+        code: "NOT_CONFIGURED",
+      );
+    }
+  }
 
   // Register third-party OAuth provider
   void registerProvider(String id, OAuthProvider provider) {
+    _ensureConfigured();
     _providers[id] = provider;
   }
 
   // Generate authorization URL with state parameter
   Uri getAuthorizationUrl(String providerId) {
+    _ensureConfigured();
     final provider = _providers[providerId]!;
     final state = generateState();
 
@@ -27,6 +77,7 @@ class AuthX {
 
   // Validate state without removing it (for debugging)
   bool isStateValid(String state) {
+    _ensureConfigured();
     if (!_states.containsKey(state)) {
       return false;
     }
@@ -40,6 +91,7 @@ class AuthX {
 
   // Clean up expired states
   void cleanStates() {
+    _ensureConfigured();
     final now = DateTime.now();
     _states.removeWhere((_, expiry) => now.isAfter(expiry));
   }
@@ -49,6 +101,7 @@ class AuthX {
     required String providerId,
     required Map<String, String> query,
   }) async {
+    _ensureConfigured();
     try {
       final code = query["code"];
       final state = query["state"];
