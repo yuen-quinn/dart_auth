@@ -3,6 +3,7 @@ class OAuthProfile {
   final String email;
   final String? name;
   final String? avatar;
+  final String? provider;
   final Map<String, dynamic> raw;
 
   OAuthProfile({
@@ -10,6 +11,7 @@ class OAuthProfile {
     required this.email,
     this.name,
     this.avatar,
+    this.provider,
     required this.raw,
   });
 }

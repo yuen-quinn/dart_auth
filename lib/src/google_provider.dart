@@ -85,6 +85,7 @@ class GoogleProvider implements OAuthProvider {
         email: data["email"],
         name: data["name"],
         avatar: data["picture"],
+        provider: "google",
         raw: data,
       );
     } catch (e, stackTrace) {

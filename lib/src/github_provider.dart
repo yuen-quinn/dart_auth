@@ -94,6 +94,7 @@ class GitHubProvider implements OAuthProvider {
         email: email,
         name: data["name"] ?? data["login"],
         avatar: data["avatar_url"],
+        provider: "github",
         raw: data,
       );
     } catch (e, stackTrace) {
